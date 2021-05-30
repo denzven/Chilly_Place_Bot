@@ -1,4 +1,4 @@
 flask
 jishaku
 youtube-dl
-discord = "^1.0.1"
+discord
