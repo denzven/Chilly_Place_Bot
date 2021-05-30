@@ -167,5 +167,5 @@ async def poll(ctx, title, *names):
 
    
    
-keep_alive()
+#keep_alive()
 bot.run(os.environ['bottoken'])
