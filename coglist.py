@@ -4,6 +4,7 @@ cogs = [
     "bot.modmail",
     "bot.welcomer",
     "bot.run",
-    #"bot.meme",
+    "bot.music",
+    "bot.btns",
 	"bot.MineCraft_server_stats"
 ]
