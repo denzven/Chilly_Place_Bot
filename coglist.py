@@ -6,5 +6,7 @@ cogs = [
     "bot.run",
     "bot.music",
     "bot.btns",
+    "bot.calculator",
+    "bot.cointoss",
 	"bot.MineCraft_server_stats"
 ]
