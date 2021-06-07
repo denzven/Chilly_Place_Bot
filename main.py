@@ -14,7 +14,7 @@ intents.presences = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("="),
                    intents=discord.Intents.all(),
                    case_insensitive=True,
-                   allowed_mentions=discord.discord.AllowedMentions.none())
+                   allowed_mentions=discord.AllowedMentions.none())
 ddb = DiscordComponents(bot)
 
 
