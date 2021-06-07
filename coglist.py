@@ -8,5 +8,6 @@ cogs = [
     "bot.btns",
     "bot.calculator",
     "bot.cointoss",
+    "bot.tic-tac-toe",
 	"bot.MineCraft_server_stats"
 ]
