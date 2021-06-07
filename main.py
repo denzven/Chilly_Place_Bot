@@ -14,10 +14,7 @@ intents.presences = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("="),
                    intents=discord.Intents.all(),
                    case_insensitive=True,
-                   allowed_mentions=discord.AllowedMentions(users=False,
-                                                            replied_user=False,
-                                                            roles=False,
-                                                            everyone=False))
+                   allowed_mentions=discord.discord.AllowedMentions.none())
 ddb = DiscordComponents(bot)
 
 
@@ -397,15 +394,15 @@ async def graph2(ctx,formula_og,tags=None):
 
 @bot.command()
 async def graph3(ctx,formula_og,tags=None):
-    if formula_og.lower() == 'clear':
-        plt.close()
-        await ctx.send('cleared the graph')
-    if tags == None:
-        pass
-    if tags == '-clear':
-        plt.close()
-        pass
-    plt.figure()
+    fig, ax = plt.subplots()
+    #if formula_og.lower() == 'clear':
+        #plt.close()
+        #await ctx.send('cleared the graph')
+    #if tags == 'hold':
+        #pass
+    #if tags == '-clear':
+        #plt.close()
+        #pass
     xlist = np.linspace(-10,10,num=1000)
     ylist = np.linspace(-10,10,num=1000)
     X, Y = np.meshgrid(xlist,ylist)
@@ -415,7 +412,20 @@ async def graph3(ctx,formula_og,tags=None):
     formula = formula.replace('sin','np.sin')
     formula = formula.replace('cos','np.cos')
     formula = formula.replace('tan','np.tan')
+    formula = formula.replace('√','np.sqrt')
+    formula = formula.replace('π','np.pi')
     
+    chars = set('0123456789xy*/.-+()"√π×÷=^sinoctanp')
+    char_check = ((c in chars) for c in formula_og)
+    char_check_final =  all(char_check)
+    if char_check_final:
+        print('passable')
+        pass
+    else:
+        print('nit passable')
+        await ctx.send("no bish")
+        return
+        
     F = eval(formula)
 
     print(f"{formula_og} {formula}" )
@@ -424,17 +434,28 @@ async def graph3(ctx,formula_og,tags=None):
     #plt.scatter(xlist,ylist)
     #plt.legend()
     #plt.plot(xlist,ylist**(1/2),'--g',label=r"f(x)$^{0.5}$")
-    plt.contour(X, Y, F, [0], colors = 'k', linestyles = 'solid')
-    plt.title(f"graphical representation of {formula_og}")
-    plt.grid(True)
-    if os.path.exists("plot2.png"):
-        os.remove("plot2.png")
+    ax.spines['bottom'].set_color('#787583')
+    ax.spines['top'].set_color('#787583') 
+    ax.spines['right'].set_color('#787583')
+    ax.spines['left'].set_color('#787583')
+    ax.tick_params(colors='white', which='both')
+    ax.set_facecolor('#1d1925')
+    fig.set_facecolor('#1d1925')
+
+    ax.contour(X, Y, F, [0], colors = '#4c82ca', linestyles = 'solid')
+    ax.set_aspect('equal')
+    #plt.contour(X, Y, F, [0], linestyles = 'solid')
+    #plt.set_aspect('equal')
+    plt.title(f"graphical representation of {formula_og} = 0",color='w',pad = 20,fontsize = 'small')
+    ax.grid(True)
+    if os.path.exists("plot3.png"):
+        os.remove("plot3.png")
     else:
         print("The file does not exist")
-    plt.savefig('plot2.png',bbox_inches='tight', dpi=150)
-    await ctx.send(file=discord.File('plot2.png'))
-    if tags == '-close':
-        plt.close()
+    fig.savefig('plot3.png',bbox_inches='tight', dpi=150)
+    await ctx.send(file=discord.File('plot3.png'))
+    #if tags == '-close':
+        #plt.close()
     return
 
 
