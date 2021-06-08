@@ -11,10 +11,11 @@ description = 'description'
 intents = discord.Intents.all()
 intents.members = True
 intents.presences = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("="),
-                   intents=discord.Intents.all(),
-                   case_insensitive=True,
-                   allowed_mentions=discord.AllowedMentions.none())
+bot = commands.Bot(
+    command_prefix=commands.when_mentioned_or("="),
+    intents=discord.Intents.all(),
+    case_insensitive=True,
+    allowed_mentions=discord.AllowedMentions.none())
 ddb = DiscordComponents(bot)
 
 
@@ -300,6 +301,7 @@ async def calc(ctx):
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 async def f(x,a,b,c):
     return a*x**2+b*x+c
@@ -330,19 +332,19 @@ async def graph(ctx,a:float,b:float,c:float):
     plt.close()
     return
     #plt.show()
-    
+
+import seaborn as sns  
 @bot.command()
 async def graph3d(ctx,randseed:int):
     np.random.seed(randseed)
     xs = np.random.random(100)
     ys = np.random.random(100)
     zs = np.random.random(100)
-    fig = plt.figure(figsize=(4,4))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(xs,ys,zs)
-    #for ii in range(0,360,1):
-        #ax.view_init(elev=10., azim=ii)
-        #plt.savefig("renders/movie%d.png" % ii)
+    fig = plt.figure()
+    ax = plt.subplot(projection='3d')
+    cmap = ListedColormap(sns.color_palette("husl", 256).as_hex())
+    sc = ax.scatter(xs, ys, zs, s=40, c=xs, marker='o', cmap=cmap, alpha=1)
+    plt.legend(*sc.legend_elements(), bbox_to_anchor=(1.05, 1), loc=2)
     plt.savefig('3dPlot.png',bbox_inches = 'tight',dpi = 150)
     await ctx.send(file=discord.File('3dPlot.png'))
     plt.close()
@@ -459,10 +461,68 @@ async def graph3(ctx,formula_og,tags=None):
     return
 
 
+import discord
+import time
+import asyncio
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import style
+style.use("fivethirtyeight")
+
+def community_report(guild):
+    online = 0
+    idle = 0
+    offline = 0
+
+    for m in guild.members:
+        if str(m.status) == "online":
+            online += 1
+        if str(m.status) == "offline":
+            offline += 1
+        else:
+            idle += 1
+
+    return online, idle, offline
 
 
+async def user_metrics_background_task():
+    await bot.wait_until_ready()
+    global sentdex_guild
+    sentdex_guild = bot.get_guild(756596083458703530)
+    while not bot.is_closed():
+        try:
+            online, idle, offline = community_report(sentdex_guild)
+            with open("usermetrics.csv","a") as f:
+                f.write(f"{int(time.time())},{online},{idle},{offline}\n")
 
+            plt.clf()
+            df = pd.read_csv("usermetrics.csv", names=['time', 'online', 'idle', 'offline'])
+            df['date'] = pd.to_datetime(df['time'],unit='s')
+            df['total'] = df['online'] + df['offline'] + df['idle']
+            df.drop("time", 1,  inplace=True)
+            df.set_index("date", inplace=True)
+            df['online'].plot()
+            df['offline'].plot()
+            df['idle'].plot()
+            plt.legend()
+            plt.savefig("online.png")
 
+            await asyncio.sleep(5)
+
+        except Exception as e:
+            print(str(e))
+            await asyncio.sleep(5)
+
+@bot.command()
+async def report(ctx):
+    global sentdex_guild
+    online, idle, offline = community_report(sentdex_guild)
+    await ctx.send(f"```Online: {online}.\nIdle/busy/dnd: {idle}.\nOffline: {offline}```")
+    file = discord.File("online.png", filename="online.png")
+    await ctx.send("online.png", file=file)
+
+bot.loop.create_task(user_metrics_background_task())
 
 
 keep_alive()
