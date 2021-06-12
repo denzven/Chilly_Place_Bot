@@ -1,8 +1,9 @@
 import re
-import discord 
+import discord
 
 from discord import Color, Embed
 from discord.ext import commands
+
 
 class CodeExec(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -28,17 +29,18 @@ class CodeExec(commands.Cog):
         **Note**: You must use codeblocks around the code
         """
         if codeblock == None:
-            await ctx.reply(embed = discord.Embed(
-                title = "Incorrect Usage!",
-                description = "Please use it like this: `=run <codeblock>`"
-            ))
+            await ctx.reply(
+                embed=discord.Embed(
+                    title="Incorrect Usage!",
+                    description="Please use it like this: `=run <codeblock>`",
+                )
+            )
             return
         matches = self.regex.findall(codeblock)
         if not matches:
             return await ctx.reply(
                 embed=Embed(
-                    title="Error!",
-                    description="Please use codeblocks to run the code."
+                    title="Error!", description="Please use codeblocks to run the code."
                 )
             )
         lang = matches[0][0] or matches[0][1]
@@ -46,10 +48,12 @@ class CodeExec(commands.Cog):
             return await ctx.reply(
                 embed=Embed(
                     title="Error!",
-                    description="Please mention a language in your codeblock."
+                    description="Please mention a language in your codeblock.",
                 ).set_image(url="https://windows.is-super-sexy.xyz/15l759.png")
             )
-        message = await ctx.reply("Executing your code... <a:loading:820988150813949982>")
+        message = await ctx.reply(
+            "Executing your code... <a:loading:820988150813949982>"
+        )
         code = matches[0][2]
         result = await self._run_code(lang=lang, code=code)
 
@@ -62,15 +66,13 @@ class CodeExec(commands.Cog):
                     title="Error!",
                     description=result["message"],
                 ),
-                content="Pain."
+                content="Pain.",
             )
         output = result["output"]
         #        if len(output) > 2000:
         #            url = await create_guest_paste_bin(self.session, output)
         #            return await message.edit("Your output was too long, so here's the pastebin link " + url)
-        embed = Embed(
-            title=f"Ran your `{result['language']}` code"
-        )
+        embed = Embed(title=f"Ran your `{result['language']}` code")
         output = output[:500]
         shortened = len(output) > 500
         lines = output.splitlines()
@@ -81,10 +83,7 @@ class CodeExec(commands.Cog):
             output = "<No output>"
         embed.add_field(name="Output", value=f"```{output}```")
 
-        await message.edit(
-            content="Done!",
-            embed=embed
-        )
+        await message.edit(content="Done!", embed=embed)
 
 
 def setup(bot: commands.Bot):
