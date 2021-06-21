@@ -5,10 +5,11 @@ import os
 
 bot = discord.bot()
 
+
 class Minecraft_serverstats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
- 
+
     class SampleViewModel(ObservedObject):
         def __init__(self):
             super().__init__()
@@ -19,7 +20,6 @@ class Minecraft_serverstats(commands.Cog):
 
         def countdown(self):
             self.num -= 1
-
 
     class SampleView(View):
         def __init__(self):
@@ -42,16 +42,15 @@ class Minecraft_serverstats(commands.Cog):
                             Button("+1")
                             .on_click(lambda x: self.viewModel.countup())
                             .style(discord.ButtonStyle.blurple),
-
                             Button("-1")
                             .on_click(lambda x: self.viewModel.countdown())
-                            .style(discord.ButtonStyle.blurple)
+                            .style(discord.ButtonStyle.blurple),
                         ],
                         [
                             Button("終わる")
                             .on_click(self.delete)
                             .style(discord.ButtonStyle.danger)
-                        ]
+                        ],
                     ]
-                )
+                ),
             ).on_appear(self.add_reaction)
